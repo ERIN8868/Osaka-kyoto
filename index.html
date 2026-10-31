@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="monchhichi-theme">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>✈️ 榮來日本遊 🇯🇵 | OSAKA · KYOTO 2027</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet CSS & JS for Interactive Map (No API Key Required) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts: Noto Sans TC & Zen Maru Gothic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Zen Maru Gothic"', '"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            // Monchhichi Palette
+            mc: {
+              bg: '#FDF8F2',
+              card: '#FFF9F3',
+              primary: '#8B5E3C',
+              secondary: '#D4A373',
+              accent: '#E07A5F',
+              light: '#F4EAE1',
+              dark: '#4A3525',
+              border: '#E6D5C3',
+            },
+            // Sanrio Palette
+            sr: {
+              bg: '#FFF5F8',
+              card: '#FFFFFF',
+              primary: '#FF85A2',
+              secondary: '#B5E2FA',
+              accent: '#ED64A6',
+              purple: '#E2D4F9',
+              dark: '#5C3A4D',
+              border: '#FFD6E0',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Global Theme Transition */
+    * {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Monchhichi Theme Styles */
+    .monchhichi-theme {
+      --bg-color: #FDF8F2;
+      --card-bg: #FFF9F3;
+      --text-main: #4A3525;
+      --text-muted: #8C705F;
+      --primary: #8B5E3C;
+      --primary-hover: #6E492E;
+      --secondary: #D4A373;
+      --accent: #E07A5F;
+      --border-color: #E6D5C3;
+      --badge-bg: #F4EAE1;
+      --header-bg: rgba(253, 248, 242, 0.92);
+      --tape-color: rgba(212, 163, 115, 0.4);
+    }
+
+    /* Sanrio Theme Styles */
+    .sanrio-theme {
+      --bg-color: #FFF5F8;
+      --card-bg: #FFFFFF;
+      --text-main: #5C3A4D;
+      --text-muted: #9E728B;
+      --primary: #FF85A2;
+      --primary-hover: #E06080;
+      --secondary: #B5E2FA;
+      --accent: #FF5C8D;
+      --border-color: #FFD6E0;
+      --badge-bg: #FFE5EC;
+      --header-bg: rgba(255, 245, 248, 0.92);
+      --tape-color: rgba(255, 182, 193, 0.4);
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Journal Washi Tape Decor Effect */
+    .washi-tape {
+      position: relative;
+    }
+    .washi-tape::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-1.5deg);
+      width: 110px;
+      height: 22px;
+      background-color: var(--tape-color);
+      border-left: 2px dashed rgba(255, 255, 255, 0.5);
+      border-right: 2px dashed rgba(255, 255, 255, 0.5);
+      z-index: 10;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    /* Sticker Style Button */
+    .sticker-btn {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0px var(--border-color);
+      border-radius: 16px;
+    }
+    .sticker-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--border-color);
+    }
+
+    .theme-card {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+      border-radius: 20px;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--secondary);
+      border-radius: 10px;
+    }
+
+    /* Ticket Cutout Effect */
+    .ticket-edge-left {
+      position: relative;
+    }
+    .ticket-edge-left::before {
+      content: '';
+      position: absolute;
+      left: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      background-color: var(--bg-color);
+      border-radius: 50%;
+    }
+    .ticket-edge-right {
+      position: relative;
+    }
+    .ticket-edge-right::after {
+      content: '';
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      background-color: var(--bg-color);
+      border-radius: 50%;
+    }
+
+    #map {
+      height: 450px;
+      width: 100%;
+      border-radius: 16px;
+      z-index: 1;
+    }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 14px;
+      font-family: 'Zen Maru Gothic', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col pb-24 md:pb-12">
+
+  <!-- ==================== HEADER & TOP BAR ==================== -->
+  <header class="sticky top-0 z-50 backdrop-blur-md border-b px-4 py-3" style="background-color: var(--header-bg); border-color: var(--border-color);">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <!-- Logo & Title -->
+      <div class="flex items-center space-x-2.5 cursor-pointer" onclick="switchTab('home')">
+        <img id="brand-avatar" class="w-9 h-9 object-contain rounded-full border border-white shadow-sm bg-white p-0.5" src="image.png" alt="Theme Mascot">
+        <div>
+          <h1 class="font-black text-lg md:text-xl tracking-wide flex items-center gap-1">
+            ✈️ 榮來日本遊 <span class="text-xs px-2 py-0.5 rounded-full text-white" style="background-color: var(--primary);">2027</span>
+          </h1>
+          <p class="text-xs opacity-75 font-medium">OSAKA · KYOTO · AMANOHASHIDATE</p>
+        </div>
+      </div>
+
+      <!-- Theme Switcher Controls -->
+      <div class="flex items-center gap-2">
+        <div class="inline-flex p-1 rounded-full border bg-white/60 shadow-sm" style="border-color: var(--border-color);">
+          <button id="btn-theme-mc" onclick="setTheme('monchhichi')" class="px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5">
+            <img src="image.png" class="w-4 h-4 object-contain rounded-full" alt="Monchhichi"> 蒙奇奇
+          </button>
+          <button id="btn-theme-sr" onclick="setTheme('sanrio')" class="px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5">
+            <img src="image_2.png" class="w-4 h-4 object-contain rounded-full" alt="Sanrio"> 三麗鷗
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== TIME & COUNTDOWN BAR ==================== -->
+  <section class="border-b py-2.5 px-4 text-xs font-medium" style="background-color: var(--badge-bg); border-color: var(--border-color);">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-regular fa-clock text-base" style="color: var(--primary);"></i>
+          <span>日本時間 (Asia/Tokyo): <strong id="japan-clock" class="font-bold">--:--:--</strong></span>
+        </div>
+        <div class="hidden sm:flex items-center gap-1.5">
+          <span>台灣時間: <strong id="taiwan-clock" class="font-bold">--:--:--</strong></span>
+        </div>
+      </div>
+      
+      <!-- Countdown -->
+      <div class="flex items-center gap-1.5 bg-white/70 px-3 py-1 rounded-full border" style="border-color: var(--border-color);">
+        <i class="fa-solid fa-plane-departure" style="color: var(--accent);"></i>
+        <span>距離 2027/02/27 出發：<strong id="countdown-timer" class="font-black text-sm" style="color: var(--accent);">計算中...</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== MAIN CONTENT AREA CONTAINER ==================== -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6">
+
+    <!-- 1. HOME DASHBOARD PAGE -->
+    <div id="tab-home" class="tab-content space-y-8">
+      
+      <!-- Hero Banner -->
+      <div class="theme-card washi-tape p-6 md:p-8 text-center relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 opacity-20 pointer-events-none w-44 h-44 flex items-center justify-center">
+          <img class="theme-mascot-bg w-full h-full object-contain" src="image.png" alt="Mascot Watermark">
+        </div>
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-3 shadow-sm border" style="background-color: var(--badge-bg); color: var(--primary); border-color: var(--border-color);">
+          <img class="theme-mascot-badge w-5 h-5 object-contain" src="image.png" alt="Mascot Icon">
+          <span>7 天 6 夜 關西精緻雙主題手帳</span>
+        </div>
+        <h2 class="text-2xl md:text-4xl font-black mb-2 tracking-tight">
+          🇯🇵 榮來日本遊 2027 ✈️
+        </h2>
+        <p class="text-sm md:text-base opacity-80 mb-6 max-w-xl mx-auto font-medium">
+          2027.02.27 (六) — 2027.03.05 (五) · 大阪 · 京都 · 天橋立 · 伊根舟屋
+        </p>
+
+        <!-- Quick Nav Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 pt-2">
+          <button onclick="switchTab('itinerary')" class="sticker-btn p-3 text-center hover:opacity-90">
+            <div class="text-2xl mb-1">📅</div>
+            <div class="text-xs font-bold">每日行程</div>
+          </button>
+          <button onclick="switchTab('flight')" class="sticker-btn p-3 text-center hover:opacity-90">
+            <div class="text-2xl mb-1">✈️</div>
+            <div class="text-xs font-bold">航班機票</div>
+          </button>
+          <button onclick="switchTab('hotel')" class="sticker-btn p-3 text-center hover:opacity-90">
+            <div class="text-2xl mb-1">🏨</div>
+            <div class="text-xs font-bold">住宿地點</div>
+          </button>
+          <button onclick="switchTab('map')" class="sticker-btn p-3 text-center hover:opacity-90">
+            <div class="text-2xl mb-1">🗺️</div>
+            <div class="text-xs font-bold">全域地圖</div>
+          </button>
+          <button onclick="switchTab('spots')" class="sticker-btn p-3 text-center hover:opacity-90">
+            <div class="text-2xl mb-1">⛩️</div>
+            <div class="text-xs font-bold">景點&美食</div>
+          </button>
+          <button onclick="switchTab('checklist')" class="sticker-btn p-3 text-center hover:opacity-90">
+            <div class="text-2xl mb-1">🧳</div>
+            <div class="text-xs font-bold">準備清單</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Flight Card Quick Peek -->
+        <div class="theme-card p-5 relative flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="font-bold text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-plane text-xs" style="color: var(--primary);"></i> 長榮航空 EVA AIR
+              </span>
+              <span class="text-xs px-2 py-0.5 rounded" style="background-color: var(--badge-bg);">BR178 / BR129</span>
+            </div>
+            <div class="space-y-3">
+              <div class="p-2.5 rounded-xl border text-xs" style="border-color: var(--border-color); background: var(--bg-color);">
+                <div class="font-bold text-xs mb-1" style="color: var(--accent);">去程 2/27 (六)</div>
+                <div class="flex justify-between items-center">
+                  <span>06:30 TPE T2</span>
+                  <i class="fa-solid fa-arrow-right text-xs opacity-40"></i>
+                  <span>09:55 KIX T1</span>
+                </div>
+              </div>
+              <div class="p-2.5 rounded-xl border text-xs" style="border-color: var(--border-color); background: var(--bg-color);">
+                <div class="font-bold text-xs mb-1" style="color: var(--accent);">回程 3/05 (五)</div>
+                <div class="flex justify-between items-center">
+                  <span>18:10 KIX T1</span>
+                  <i class="fa-solid fa-arrow-right text-xs opacity-40"></i>
+                  <span>20:25 TPE T2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button onclick="switchTab('flight')" class="mt-4 text-xs font-bold w-full py-2 rounded-lg border text-center" style="border-color: var(--border-color); background-color: var(--badge-bg);">
+            查看完整機票細節 →
+          </button>
+        </div>
+
+        <!-- Accommodation Quick Peek -->
+        <div class="theme-card p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="font-bold text-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-hotel text-xs" style="color: var(--primary);"></i> 住宿預訂 (6晚)
+              </span>
+              <span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded font-bold">已確認</span>
+            </div>
+            <h3 class="font-black text-lg mb-1">STAY IN YEBISU</h3>
+            <p class="text-xs opacity-80 mb-3">〒556-0003 大阪府大阪市浪速区恵美須西２丁目１１−6</p>
+            <div class="space-y-1 text-xs">
+              <div class="flex justify-between">
+                <span class="opacity-70">入住 Check-in:</span>
+                <span class="font-bold">17:00 ~ 24:00</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="opacity-70">退房 Check-out:</span>
+                <span class="font-bold">11:00 前</span>
+              </div>
+            </div>
+          </div>
+          <a href="https://maps.google.com/?q=STAY+IN+YEBISU+大阪" target="_blank" class="mt-4 text-xs font-bold w-full py-2 rounded-lg text-white text-center flex items-center justify-center gap-1" style="background-color: var(--primary);">
+            <i class="fa-solid fa-location-dot"></i> Google Maps 導航
+          </a>
+        </div>
+
+        <!-- Trip Highlights Quick Nav -->
+        <div class="theme-card p-5 flex flex-col justify-between">
+          <div>
+            <div class="font-bold text-sm mb-3 flex items-center gap-1.5">
+              <i class="fa-solid fa-star text-xs" style="color: var(--accent);"></i> 行程亮點快報
+            </div>
+            <ul class="text-xs space-y-2">
+              <li class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 rounded text-[10px] text-white font-bold" style="background-color: var(--accent);">D3</span>
+                <span>KKday 天橋立·伊根舟屋餵海鷗一日遊</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 rounded text-[10px] text-white font-bold" style="background-color: var(--accent);">D4</span>
+                <span>京都專車包車一日遊（伏見稻荷+清水寺）</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 rounded text-[10px] text-white font-bold" style="background-color: var(--accent);">D4</span>
+                <span>午餐：京都和牛壽喜燒 富之上 祇園八坂店</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 rounded text-[10px] text-white font-bold" style="background-color: var(--accent);">D2</span>
+                <span>勝尾寺求達摩 + 梅田藍天大廈夜景</span>
+              </li>
+            </ul>
+          </div>
+          <button onclick="switchTab('itinerary')" class="mt-4 text-xs font-bold w-full py-2 rounded-lg border text-center" style="border-color: var(--border-color); background-color: var(--badge-bg);">
+            開始瀏覽 D1~D7 行程 →
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Days Grid Entrance -->
+      <div>
+        <h3 class="font-black text-xl mb-4 flex items-center gap-2">
+          <span>🗓️ 7 天行程隨手查</span>
+          <span class="text-xs font-normal opacity-70">(點擊下方卡片開啟當日細節)</span>
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="days-entrance-grid">
+          <!-- JS dynamic render -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. FLIGHT INFO PAGE -->
+    <div id="tab-flight" class="tab-content hidden space-y-6">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-black">✈️ 航班機票與行李資訊</h2>
+        <p class="text-xs opacity-75 mt-1">長榮航空 EVA AIR 來回航班詳細時間與行李規定</p>
+      </div>
+
+      <div class="max-w-2xl mx-auto space-y-6">
+        <!-- Outbound Ticket -->
+        <div class="theme-card p-6 relative overflow-hidden ticket-edge-left ticket-edge-right border-2">
+          <div class="flex justify-between items-start border-b pb-4 mb-4" style="border-color: var(--border-color);">
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold text-white" style="background-color: var(--accent);">去程航班 OUTBOUND</span>
+              <h3 class="text-lg font-black mt-2">長榮航空 EVA AIR</h3>
+            </div>
+            <div class="text-right">
+              <span class="text-xl font-black" style="color: var(--primary);">BR178</span>
+              <p class="text-xs opacity-75">2027 / 02 / 27 (六)</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center items-center py-2">
+            <div>
+              <div class="text-2xl font-black">06:30</div>
+              <div class="text-xs font-bold mt-1">TPE 台北桃園</div>
+              <div class="text-[11px] opacity-70">第二航廈 T2</div>
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-[10px] opacity-70">飛行 2 hrs 25 mins</span>
+              <div class="w-full h-0.5 my-1 relative" style="background-color: var(--border-color);">
+                <i class="fa-solid fa-plane absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs" style="color: var(--primary);"></i>
+              </div>
+              <span class="text-[10px] font-bold text-green-600">直飛</span>
+            </div>
+            <div>
+              <div class="text-2xl font-black">09:55</div>
+              <div class="text-xs font-bold mt-1">KIX 大阪關西</div>
+              <div class="text-[11px] opacity-70">第一航廈 T1</div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t flex justify-between items-center text-xs" style="border-color: var(--border-color);">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-suitcase" style="color: var(--primary);"></i>
+              <span>託運行李: <strong>23 kg</strong></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-briefcase" style="color: var(--primary);"></i>
+              <span>手提行李: <strong>7 kg</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inbound Ticket -->
+        <div class="theme-card p-6 relative overflow-hidden ticket-edge-left ticket-edge-right border-2">
+          <div class="flex justify-between items-start border-b pb-4 mb-4" style="border-color: var(--border-color);">
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold text-white" style="background-color: var(--primary);">回程航班 INBOUND</span>
+              <h3 class="text-lg font-black mt-2">長榮航空 EVA AIR</h3>
+            </div>
+            <div class="text-right">
+              <span class="text-xl font-black" style="color: var(--primary);">BR129</span>
+              <p class="text-xs opacity-75">2027 / 03 / 05 (五)</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center items-center py-2">
+            <div>
+              <div class="text-2xl font-black">18:10</div>
+              <div class="text-xs font-bold mt-1">KIX 大阪關西</div>
+              <div class="text-[11px] opacity-70">第一航廈 T1</div>
+            </div>
+            <div class="flex flex-col items-center">
+              <span class="text-[10px] opacity-70">飛行 3 hrs 15 mins</span>
+              <div class="w-full h-0.5 my-1 relative" style="background-color: var(--border-color);">
+                <i class="fa-solid fa-plane absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs" style="color: var(--primary);"></i>
+              </div>
+              <span class="text-[10px] font-bold text-green-600">直飛</span>
+            </div>
+            <div>
+              <div class="text-2xl font-black">20:25</div>
+              <div class="text-xs font-bold mt-1">TPE 台北桃園</div>
+              <div class="text-[11px] opacity-70">第二航廈 T2</div>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-4 border-t flex justify-between items-center text-xs" style="border-color: var(--border-color);">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-suitcase" style="color: var(--primary);"></i>
+              <span>託運行李: <strong>23 kg</strong></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-briefcase" style="color: var(--primary);"></i>
+              <span>手提行李: <strong>7 kg</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl text-xs space-y-1 border" style="background-color: var(--badge-bg); border-color: var(--border-color);">
+          <div class="font-bold mb-1">💡 機場報到提醒：</div>
+          <p>• 去程：建議 04:30 前抵達桃園機場 T2 辦理登機與託運。</p>
+          <p>• 回程：建議 15:30 前抵達關西機場 T1 辦理登機，可預留時間逛免稅店購物。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. HOTEL INFO PAGE -->
+    <div id="tab-hotel" class="tab-content hidden space-y-6">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-black">🏨 住宿據點資訊</h2>
+        <p class="text-xs opacity-75 mt-1">全程 6 晚連住大阪 Stay in Yebisu，不必搬行李</p>
+      </div>
+
+      <div class="max-w-2xl mx-auto theme-card p-6 space-y-6">
+        <div class="flex justify-between items-start border-b pb-4" style="border-color: var(--border-color);">
+          <div>
+            <h3 class="text-2xl font-black" style="color: var(--primary);">STAY IN YEBISU</h3>
+            <p class="text-xs opacity-75 mt-1">ステイ イン ヱビス</p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+            6 晚連住
+          </span>
+        </div>
+
+        <div class="space-y-3 text-sm">
+          <div class="flex items-start gap-2">
+            <i class="fa-solid fa-location-dot mt-1" style="color: var(--accent);"></i>
+            <div>
+              <div class="font-bold">地址 Address</div>
+              <div class="text-xs opacity-80 mt-0.5">〒556-0003 大阪府大阪市浪速区恵美須西２丁目１１−6</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 py-3 border-y" style="border-color: var(--border-color);">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-key text-base" style="color: var(--primary);"></i>
+              <div>
+                <div class="text-xs opacity-70">入住時間 Check-in</div>
+                <div class="font-bold text-sm">17:00 ~ 24:00</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-door-open text-base" style="color: var(--primary);"></i>
+              <div>
+                <div class="text-xs opacity-70">退房時間 Check-out</div>
+                <div class="font-bold text-sm">11:00 前</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="font-bold">🚆 交通建議：</div>
+            <p>• 位於動物園前站 / 新今宮站附近，交通極為方便。</p>
+            <p>• 第一天抵達可先辦理行李寄放再出門。</p>
+          </div>
+        </div>
+
+        <div class="pt-2 flex gap-3">
+          <a href="https://maps.google.com/?q=STAY+IN+YEBISU+大阪" target="_blank" class="flex-1 py-3 text-center text-xs font-bold rounded-xl text-white shadow" style="background-color: var(--primary);">
+            <i class="fa-solid fa-map-location-dot mr-1"></i> Google Maps 導航
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. ITINERARY (D1~D7) PAGE -->
+    <div id="tab-itinerary" class="tab-content hidden space-y-6">
+      
+      <!-- Day Switch Buttons -->
+      <div class="flex overflow-x-auto gap-2 pb-2 scrollbar-none" id="day-nav-buttons">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Active Day Detail Container -->
+      <div id="active-day-detail">
+        <!-- JS dynamic content -->
+      </div>
+    </div>
+
+    <!-- 5. DATABASE & SPOTS PAGE -->
+    <div id="tab-spots" class="tab-content hidden space-y-6">
+      <div class="text-center mb-4">
+        <h2 class="text-2xl font-black">⛩️ 景點、美食與購物資料庫</h2>
+        <p class="text-xs opacity-75 mt-1">快速搜尋與分類過濾關西精選地點</p>
+      </div>
+
+      <!-- Search & Filter Controls -->
+      <div class="theme-card p-4 space-y-3">
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-50"></i>
+          <input type="text" id="spot-search-input" oninput="renderSpotsDB()" placeholder="搜尋景點、餐廳、神社或關鍵字..." class="w-full pl-9 pr-4 py-2 text-xs rounded-xl border bg-transparent focus:outline-none" style="border-color: var(--border-color);">
+        </div>
+        <div class="flex flex-wrap gap-2 text-xs" id="spot-category-filters">
+          <button onclick="filterCategory('all')" class="cat-btn active px-3 py-1 rounded-full font-bold border" style="border-color: var(--border-color); background-color: var(--primary); color: white;">全部</button>
+          <button onclick="filterCategory('shrine')" class="cat-btn px-3 py-1 rounded-full font-bold border" style="border-color: var(--border-color); background-color: var(--card-bg);">⛩️ 神社寺院</button>
+          <button onclick="filterCategory('food')" class="cat-btn px-3 py-1 rounded-full font-bold border" style="border-color: var(--border-color); background-color: var(--card-bg);">🍜 美食餐廳</button>
+          <button onclick="filterCategory('shop')" class="cat-btn px-3 py-1 rounded-full font-bold border" style="border-color: var(--border-color); background-color: var(--card-bg);">🛍️ 購物商圈</button>
+          <button onclick="filterCategory('sight')" class="cat-btn px-3 py-1 rounded-full font-bold border" style="border-color: var(--border-color); background-color: var(--card-bg);">📷 熱門景點</button>
+        </div>
+      </div>
+
+      <!-- Spots Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="spots-grid-container">
+        <!-- JS Render -->
+      </div>
+    </div>
+
+    <!-- 6. MAP PAGE -->
+    <div id="tab-map" class="tab-content hidden space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2">
+        <div>
+          <h2 class="text-2xl font-black">🗺️ 關西互動式真實地圖</h2>
+          <p class="text-xs opacity-75">免 Key Leaflet 地圖，點擊圖示查看資訊與導航</p>
+        </div>
+        <div class="flex gap-1 text-xs">
+          <button onclick="centerMap('all')" class="px-3 py-1 rounded-lg border font-bold" style="border-color: var(--border-color); background-color: var(--card-bg);">全域</button>
+          <button onclick="centerMap('osaka')" class="px-3 py-1 rounded-lg border font-bold" style="border-color: var(--border-color); background-color: var(--card-bg);">大阪</button>
+          <button onclick="centerMap('kyoto')" class="px-3 py-1 rounded-lg border font-bold" style="border-color: var(--border-color); background-color: var(--card-bg);">京都</button>
+          <button onclick="centerMap('ine')" class="px-3 py-1 rounded-lg border font-bold" style="border-color: var(--border-color); background-color: var(--card-bg);">天橋立/伊根</button>
+        </div>
+      </div>
+
+      <!-- Map Container -->
+      <div class="theme-card p-2">
+        <div id="map"></div>
+      </div>
+
+      <!-- Map Legend -->
+      <div class="flex flex-wrap justify-center gap-4 text-xs opacity-80 pt-2">
+        <span class="flex items-center gap-1">⛩️ 神社寺院</span>
+        <span class="flex items-center gap-1">🍜 美食</span>
+        <span class="flex items-center gap-1">🛍️ 購物</span>
+        <span class="flex items-center gap-1">🏨 住宿</span>
+        <span class="flex items-center gap-1">📷 景點</span>
+      </div>
+    </div>
+
+    <!-- 7. CHECKLIST PAGE -->
+    <div id="tab-checklist" class="tab-content hidden space-y-6">
+      <div class="text-center mb-4">
+        <h2 class="text-2xl font-black">🧳 出發前準備清單</h2>
+        <p class="text-xs opacity-75 mt-1">實時記錄備齊狀態，自動保存進度</p>
+      </div>
+
+      <div class="max-w-2xl mx-auto theme-card p-6 space-y-6">
+        <!-- Progress Bar -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-bold mb-2">
+            <span>準備完成率</span>
+            <span id="checklist-percentage" style="color: var(--accent);">0%</span>
+          </div>
+          <div class="w-full h-3 rounded-full overflow-hidden bg-black/5">
+            <div id="checklist-progress-fill" class="h-full transition-all duration-500 rounded-full" style="background-color: var(--accent); width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Custom Add Item -->
+        <div class="flex gap-2">
+          <input type="text" id="new-checklist-input" placeholder="新增自訂準備項目..." class="flex-1 px-3 py-2 text-xs rounded-xl border bg-transparent focus:outline-none" style="border-color: var(--border-color);">
+          <button onclick="addChecklistItem()" class="px-4 py-2 text-xs font-bold rounded-xl text-white shadow" style="background-color: var(--primary);">新增</button>
+        </div>
+
+        <!-- Checklist Items List -->
+        <div class="space-y-2 text-xs" id="checklist-items-container">
+          <!-- JS dynamic render -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== FLOATING MUSIC PLAYER & FOOTER ==================== -->
+  <div class="fixed bottom-3 right-3 left-3 md:left-auto md:w-80 z-40">
+    <div class="theme-card p-3 shadow-xl flex items-center justify-between gap-2 backdrop-blur-md" style="background-color: var(--header-bg);">
+      <div class="flex items-center gap-2.5 overflow-hidden">
+        <button id="btn-play-sound" onclick="toggleAudio()" class="w-9 h-9 rounded-full flex items-center justify-center text-white shrink-0 shadow" style="background-color: var(--primary);">
+          <i id="audio-icon" class="fa-solid fa-play text-xs"></i>
+        </button>
+        <div class="truncate text-xs">
+          <div class="font-bold truncate" id="music-title">🎵 旅途背景音效 (日系輕音樂)</div>
+          <div class="text-[10px] opacity-60">點擊播放增添手帳氛圍</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-1 shrink-0">
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5" oninput="setVolume(this.value)" class="w-16 h-1 accent-amber-700">
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element (Ambient Music Sample) -->
+  <audio id="bg-audio" loop preload="none">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // ------------------------------------------------------------------
+    // 1. RAW DATA DEFINITIONS
+    // ------------------------------------------------------------------
+    
+    const itineraryData = [
+      {
+        day: 1,
+        date: "2027/02/27 (六)",
+        title: "抵達大阪・阿倍野 HARUKAS 300・通天閣",
+        highlights: ["關西機場抵達", "行李寄放", "阿倍野 HARUKAS 300", "入住 STAY IN YEBISU", "通天閣夜間散步"],
+        timeline: [
+          { time: "06:30", event: "抵達台灣桃園國際機場 T2，準備辦理出境與登機" },
+          { time: "09:55", event: "抵達大阪關西國際機場 T1 (BR178)" },
+          { time: "14:00", event: "抵達新今宮/動物園前站住宿附近，先寄放行李" },
+          { time: "14:30", event: "至動物園前站搭乘地鐵前往天王寺站，前往 HARUKAS 300 阿倍野展望台欣賞景色" },
+          { time: "17:00", event: "返回辦理 Check-in 入住 STAY IN YEBISU" },
+          { time: "18:30", event: "晚上前往通天閣附近逛街、享用炸串與當地美食" }
+        ],
+        spots: [
+          { name: "HARUKAS 300 阿倍野展望台", lat: 34.6459, lng: 135.5140, addr: "大阪府大阪市阿倍野区阿倍野筋1-1-43" },
+          { name: "STAY IN YEBISU", lat: 34.6534, lng: 135.5034, addr: "大阪府大阪市浪速区恵美須西２丁目１１−6" },
+          { name: "通天閣", lat: 34.6525, lng: 135.5063, addr: "大阪府大阪市浪速區惠美須東1丁目18番6號" }
+        ],
+        notes: "提醒：第一天先寄放行李，阿倍野展望台天氣好時景觀極佳。"
+      },
+      {
+        day: 2,
+        date: "2027/02/28 (日)",
+        title: "勝尾寺求達摩・梅田藍天大廈與購物",
+        highlights: ["勝尾寺參拜", "達摩祈福", "梅田藍天大廈", "梅田周邊購物"],
+        timeline: [
+          { time: "08:30", event: "從住宿出發前往勝尾寺（搭乘地鐵轉乘巴士）" },
+          { time: "10:00", event: "勝尾寺參拜拍照、欣賞達摩景象（停留2小時以上）" },
+          { time: "13:00", event: "搭車前往大阪梅田站享用午餐" },
+          { time: "15:00", event: "梅田周邊百貨（Kiddyland、友都八喜等）逛街購物" },
+          { time: "18:30", event: "前往梅田藍天大廈空中庭園展望台欣賞夜景" }
+        ],
+        spots: [
+          { name: "勝尾寺", lat: 34.8580, lng: 135.4912, addr: "大阪府箕面市粟生間谷2914-1" },
+          { name: "梅田藍天大廈", lat: 34.7053, lng: 135.4896, addr: "大阪府大阪市北区大深町1-1" },
+          { name: "大阪梅田站", lat: 34.7025, lng: 135.4984, addr: "大阪府大阪市北区芝田1丁目1" }
+        ],
+        notes: "勝尾寺山區較涼，請注意保暖。"
+      },
+      {
+        day: 3,
+        date: "2027/03/01 (一)",
+        title: "天橋立・伊根舟屋 KKday 一日遊",
+        highlights: ["07:15 蟹道樂集合", "天橋立纜車", "智恩寺", "伊根灣遊覽船餵海鷗", "伊根舟屋"],
+        timeline: [
+          { time: "07:15", event: "🚨 集合地點：大阪蟹道樂東店（道頓堀）" },
+          { time: "07:30", event: "專車準時出發（KKday 每人 NT$2,027 包門票）" },
+          { time: "10:30", event: "抵達天橋立，搭乘纜車、參拜智恩寺" },
+          { time: "13:30", event: "前往伊根灣搭乘遊覽船（可餵食海鷗）及參觀伊根舟屋" },
+          { time: "18:30", event: "預計返抵大阪蟹道樂東店解散（視當天路況而定）" }
+        ],
+        spots: [
+          { name: "蟹道樂 東店 (集合點)", lat: 34.6687, lng: 135.5031, addr: "大阪府大阪市中央区道頓堀1-1-3" },
+          { name: "天橋立", lat: 35.5694, lng: 135.1917, addr: "京都府宮津市文珠" },
+          { name: "智恩寺", lat: 35.5562, lng: 135.1852, addr: "京都府宮津市文珠466" },
+          { name: "伊根舟屋", lat: 35.6738, lng: 135.2858, addr: "京都府與謝郡伊根町平田" }
+        ],
+        notes: "一日遊請務必準時於 07:15 抵達集合點，船上餵海鷗風大請準備圍巾手套。"
+      },
+      {
+        day: 4,
+        date: "2027/03/02 (二)",
+        title: "京都包車一日遊 (伏見稻荷·清水寺·祇園壽喜燒)",
+        highlights: ["07:00包車出發", "伏見稻荷大社", "二年坂三年坂清水寺", "富之上和牛壽喜燒午餐", "八坂神社", "下鴨神社", "御金神社", "高島屋購物"],
+        timeline: [
+          { time: "07:00", event: "包車從 STAY IN YEBISU 出發前往京都" },
+          { time: "08:00", event: "伏見稻荷大社（千本鳥居參拜拍照）" },
+          { time: "10:00", event: "二年坂、三年坂散步前往清水寺参拜" },
+          { time: "12:30", event: "午餐：京都和牛壽喜燒 富之上 祇園八坂店（已預約）" },
+          { time: "14:00", event: "八坂神社 -> 花見小路 -> 下鴨神社 -> 御金神社 -> 檀王法林寺" },
+          { time: "17:30", event: "京都高島屋及周邊商店街購物與晚餐" },
+          { time: "20:30", event: "從京都返回大阪 STAY IN YEBISU 住宿" }
+        ],
+        spots: [
+          { name: "伏見稻荷大社", lat: 34.9671, lng: 135.7727, addr: "京都府京都市伏見區深草藪之內町68番地" },
+          { name: "清水寺", lat: 34.9949, lng: 135.7850, addr: "京都府京都市東山区清水１丁目294" },
+          { name: "富之上 祇園八坂店", lat: 35.0036, lng: 135.7745, addr: "京都府京都市東山区四条通大和大路東入祇園町南側501-2" },
+          { name: "八坂神社", lat: 35.0037, lng: 135.7785, addr: "京都府京都市東山区祇園町北側625" },
+          { name: "下鴨神社", lat: 35.0389, lng: 135.7730, addr: "京都市左京區下鴨泉川町59番地" },
+          { name: "御金神社", lat: 35.0116, lng: 135.7554, addr: "京都府京都市中京区押西洞院町614" }
+        ],
+        notes: "本日行程豐富，順序不可調換；包車司機全程接送。"
+      },
+      {
+        day: 5,
+        date: "2027/03/03 (三)",
+        title: "木津市場美味早餐・難波八阪神社・大阪城公園",
+        highlights: ["木津市場早餐", "難波八阪神社獅子殿", "大阪城公園", "天守閣"],
+        timeline: [
+          { time: "06:30", event: "步行前往木津市場採買新鮮海鮮與早餐帶回民宿享用" },
+          { time: "11:00", event: "出門前往難波八阪神社參拜巨大獅子殿" },
+          { time: "13:30", event: "前往大阪城公園，參觀大阪城與天守閣" },
+          { time: "17:00", event: "心齋橋或道頓堀商圈自由散步與晚餐" }
+        ],
+        spots: [
+          { name: "木津市場", lat: 34.6567, lng: 135.4988, addr: "大阪府大阪市浪速區敷津東2丁目2-8" },
+          { name: "難波八阪神社", lat: 34.6613, lng: 135.4967, addr: "大阪府大阪市浪速區元町2丁目9-19" },
+          { name: "大阪城天守閣", lat: 34.6873, lng: 135.5262, addr: "大阪府大阪市中央區大阪城1-1" }
+        ],
+        notes: "木津市場早起人較少，可吃到新鮮海鮮刺身。"
+      },
+      {
+        day: 6,
+        date: "2027/03/04 (四)",
+        title: "黑門市場・大阪城公園與購物彈性日",
+        highlights: ["黑門市場美食", "大阪城巡禮", "心齋橋橘子街自由購物"],
+        timeline: [
+          { time: "09:00", event: "出發前往黑門市場體驗美食攤位" },
+          { time: "12:00", event: "前往大阪城公園漫步（預留兩天重複彈性安排）" },
+          { time: "15:00", event: "前往心齋橋筋、橘子街、美國街最後大採購" }
+        ],
+        spots: [
+          { name: "黑門市場", lat: 34.6653, lng: 135.5069, addr: "大阪府大阪市中央区日本橋2-4-1" },
+          { name: "心齋橋筋商店街", lat: 34.6711, lng: 135.5014, addr: "大阪府大阪市中央区心斎橋筋" },
+          { name: "橘子街 (Orange Street)", lat: 34.6698, lng: 135.4947, addr: "大阪府大阪市西区南堀江" }
+        ],
+        notes: "D5 與 D6 皆安排大阪城，可日後彈性決定停留時長。"
+      },
+      {
+        day: 7,
+        date: "2027/03/05 (五)",
+        title: "大鳥大社參拜・關西機場返台",
+        highlights: ["11:00 前退房", "鳳站大鳥大社參拜", "關西機場免稅店", "搭機返台 BR129"],
+        timeline: [
+          { time: "10:00", event: "整理全部行李辦理 STAY IN YEBISU 退房" },
+          { time: "11:00", event: "搭乘電車前往鳳站，步行 5 分鐘至大鳥大社參拜" },
+          { time: "14:00", event: "搭車前往關西國際機場 T1" },
+          { time: "15:30", event: "抵達機場辦理報到、寄行李，逛免稅店購物" },
+          { time: "18:10", event: "關西機場起飛 BR129 (20:25 抵達桃園 T2)" }
+        ],
+        spots: [
+          { name: "大鳥大社", lat: 34.5332, lng: 135.4608, addr: "大阪府堺市西區鳳北町1-1-2" },
+          { name: "關西國際機場 T1", lat: 34.4320, lng: 135.2304, addr: "大阪府泉佐野市泉州空港北1" }
+        ],
+        notes: "最後一天請預留充足機場報到時間，安全第一。"
+      }
+    ];
+
+    const databaseSpots = [
+      // Shrines
+      { cat: 'shrine', name: '大鳥大社', jp: 'おおとりたいしゃ', addr: '大阪府堺市西區鳳北町1-1-2', note: 'D7 安排參拜，鄰近鳳站。', lat: 34.5332, lng: 135.4608 },
+      { cat: 'shrine', name: '難波八阪神社', jp: 'なんばやさかじんじゃ', addr: '大阪府大阪市浪速區元町2-9-19', note: '巨大獅子頭殿著名。', lat: 34.6613, lng: 135.4967 },
+      { cat: 'shrine', name: '勝尾寺', jp: 'かつおじ', addr: '大阪府箕面市粟生間谷2914-1', note: '達摩祈福名所。', lat: 34.8580, lng: 135.4912 },
+      { cat: 'shrine', name: '伏見稻荷大社', jp: 'ふしみいなりたいしゃ', addr: '京都府京都市伏見區深草藪之內町68', note: '千本鳥居。', lat: 34.9671, lng: 135.7727 },
+      { cat: 'shrine', name: '御金神社', jp: 'みかねじんじゃ', addr: '京都府京都市中京区押西洞院町614', note: '金黃色鳥居，求財洗錢。', lat: 35.0116, lng: 135.7554 },
+      { cat: 'shrine', name: '檀王法林寺', jp: 'だんのうほうりんじ', addr: '京都府京都市左京區川端通3條上法林寺門前町36', note: '黑貓神符。', lat: 35.0091, lng: 135.7726 },
+      { cat: 'shrine', name: '下鴨神社', jp: 'しもがもじんじゃ', addr: '京都市左京區下鴨泉川町59番地', note: '世界文化遺產。', lat: 35.0389, lng: 135.7730 },
+      { cat: 'shrine', name: '清水寺', jp: 'きよみずでら', addr: '京都府京都市東山区清水１丁目294', note: '清水舞台。', lat: 34.9949, lng: 135.7850 },
+      { cat: 'shrine', name: '八坂神社', jp: 'やさかじんじゃ', addr: '京都府京都市東山区祇園町北側625', note: '祇園總本社。', lat: 35.0037, lng: 135.7785 },
+      
+      // Sights
+      { cat: 'sight', name: '大阪城公園・天守閣', jp: 'おおさかじょう', addr: '大阪府大阪市中央區大阪城1-1', note: '大阪代表地標。', lat: 34.6873, lng: 135.5262 },
+      { cat: 'sight', name: '通天閣', jp: 'つうてんかく', addr: '大阪府大阪市浪速區惠美須東1-18-6', note: '新世界懷舊塔樓。', lat: 34.6525, lng: 135.5063 },
+      { cat: 'sight', name: '阿倍野 HARUKAS 300', jp: 'ハルカス300', addr: '大阪府大阪市阿倍野区阿倍野筋1-1-43', note: '日本第一高樓展望台。', lat: 34.6459, lng: 135.5140 },
+      { cat: 'sight', name: '梅田藍天大廈', jp: '梅田スカイビル', addr: '大阪府大阪市北区大深町1-1', note: '空中庭園夜景。', lat: 34.7053, lng: 135.4896 },
+      { cat: 'sight', name: '宇治 JR 站', jp: '宇治駅', addr: '京都府宇治市宇治宇文字16', note: '抹茶名產購物點。', lat: 34.8900, lng: 135.8010 },
+      { cat: 'sight', name: '天橋立', jp: 'あまのはしだて', addr: '京都府宮津市文珠', note: '日本三景之一。', lat: 35.5694, lng: 135.1917 },
+      { cat: 'sight', name: '伊根舟屋', jp: 'いねのふなや', addr: '京都府與謝郡伊根町平田', note: '水上傳統建築。', lat: 35.6738, lng: 135.2858 },
+
+      // Food
+      { cat: 'food', name: '富之上 祇園八坂店', jp: 'すき焼き 富之上', addr: '京都府京都市東山区四条通大和大路東入祇園町南側501-2', note: 'D4午餐，京都和牛壽喜燒(需預約)。營業 11:00–22:00', lat: 35.0036, lng: 135.7745 },
+      { cat: 'food', name: '雞湯拉麵 座銀', jp: '鶏Soba 座銀', addr: '大阪府大阪市中央区南船場3-9-6', note: '營業 10:00–22:00', lat: 34.6766, lng: 135.5005 },
+      { cat: 'food', name: 'MORITAY 梅田', jp: 'モリタ屋', addr: '大阪府大阪市北区梅田3-1-3 LUCUA 10F', note: '壽喜燒，營業 11:00–23:00', lat: 34.7022, lng: 135.4960 },
+      { cat: 'food', name: 'らぁ麺はやし田 道頓堀店', jp: 'はやし田', addr: '大阪府大阪市中央区道頓堀1-10-1 B1F', note: '營業 11:00–23:00', lat: 34.6685, lng: 135.5012 },
+      { cat: 'food', name: 'カヌレと、天王寺店', jp: 'カヌレと、', addr: '大阪府大阪市天王寺区堀越町10-16', note: '美味可麗露，營業 10:00–19:00', lat: 34.6477, lng: 135.5135 },
+      { cat: 'food', name: 'はなだこ (Hanadako)', jp: 'はなだこ', addr: '大阪府大阪市北区角田町9-26', note: '蔥爆章魚燒，營業 10:00–21:45', lat: 34.7028, lng: 135.4996 },
+      { cat: 'food', name: 'Green 自然とお肉', jp: 'Green', addr: '大阪府大阪市西区新町1-24-14', note: '親子丼名店 (需預約)', lat: 34.6760, lng: 135.4930 },
+      { cat: 'food', name: 'LiLo Coffee Roasters', jp: 'リロコーヒー', addr: '大阪府大阪市中央区西心斎橋1-10-28', note: '風格咖啡廳，有特色風味小卡', lat: 34.6724, lng: 135.4977 },
+
+      // Shops
+      { cat: 'shop', name: '蒙奇奇京都清水坂店', jp: 'Monchhichi Shop', addr: '京都府京都市東山区清水２丁目218-1', note: '蒙奇奇粉絲必逛門市！', lat: 34.9961, lng: 135.7801 },
+      { cat: 'shop', name: 'Kiddyland 大阪梅田店', jp: 'キディランド', addr: '大阪府大阪市北区芝田1-1-3 阪急三番街', note: '角色周邊商品天堂', lat: 34.7042, lng: 135.4975 },
+      { cat: 'shop', name: 'HISEKI 大阪心齋橋店', jp: 'HISEKI', addr: '大阪府大阪市中央区西心斎橋2-10-24 B1F', note: '客製硬幣戒指製作体验', lat: 34.6710, lng: 135.4980 },
+      { cat: 'shop', name: 'BAPE STORE® 大阪', jp: 'BAPE 大阪', addr: '大阪府大阪市西区南堀江1-19-2', note: '⚠️ 評論提及店員態度爭議，列為購物參考', lat: 34.6702, lng: 135.4935 },
+      { cat: 'shop', name: 'BAPE STORE® 京都', jp: 'BAPE 京都', addr: '京都府京都市下京区奈良物町374', note: '⚠️ 評論提及店員態度爭議，列為購物參考', lat: 35.0035, lng: 135.7660 }
+    ];
+
+    const defaultChecklist = [
+      { id: 'c1', text: '護照 (有效期限 6 個月以上)' },
+      { id: 'c2', text: '長榮來回機票/電子機票列印本' },
+      { id: 'c3', text: 'STAY IN YEBISU 住宿確認單' },
+      { id: 'c4', text: '日幣現金 (建議備齊)' },
+      { id: 'c5', text: '海外刷卡信用卡 (開通海外支付)' },
+      { id: 'c6', text: 'ICOCA 卡 / 交通卡' },
+      { id: 'c7', text: '日本 eSIM / 上網卡安裝設定' },
+      { id: 'c8', text: '手機 & 行動電源' },
+      { id: 'c9', text: '日本轉接插頭 / 充電線' },
+      { id: 'c10', text: '個人常備藥品 / 暈車藥' },
+      { id: 'c11', text: '保暖衣物 / 圍巾 / 手套' },
+      { id: 'c12', text: '可折疊購物袋' }
+    ];
+
+    // ------------------------------------------------------------------
+    // 2. STATE MANAGEMENT & LOCAL STORAGE
+    // ------------------------------------------------------------------
+    
+    let currentTheme = localStorage.getItem('ryo_theme') || 'monchhichi';
+    let userChecklist = JSON.parse(localStorage.getItem('ryo_checklist')) || defaultChecklist;
+    let checkedItems = JSON.parse(localStorage.getItem('ryo_checked')) || {};
+    let dayNotes = JSON.parse(localStorage.getItem('ryo_day_notes')) || {};
+    let activeDay = 1;
+    let mapInstance = null;
+    let mapMarkers = [];
+    let currentCategoryFilter = 'all';
+
+    // ------------------------------------------------------------------
+    // 3. INITIALIZATION & TIMERS
+    // ------------------------------------------------------------------
+
+    window.onload = function() {
+      setTheme(currentTheme);
+      updateClocks();
+      setInterval(updateClocks, 1000);
+      renderDaysEntrance();
+      renderDayNav();
+      renderDayDetail(1);
+      renderSpotsDB();
+      renderChecklist();
+      initLeafletMap();
+    };
+
+    function updateClocks() {
+      const now = new Date();
+      
+      // Japan Time (Asia/Tokyo)
+      const jpTimeString = new Intl.DateTimeFormat('zh-TW', {
+        timeZone: 'Asia/Tokyo',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
+      document.getElementById('japan-clock').innerText = jpTimeString;
+
+      // Taiwan Time (Asia/Taipei)
+      const twTimeString = new Intl.DateTimeFormat('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
+      document.getElementById('taiwan-clock').innerText = twTimeString;
+
+      // Countdown to 2027-02-27 06:30:00
+      const targetDate = new Date('2027-02-27T06:30:00+08:00');
+      const diffMs = targetDate - now;
+
+      if (diffMs > 0) {
+        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((diffMs / 1000 / 60) % 60);
+        document.getElementById('countdown-timer').innerText = `${days} 天 ${hours} 小時 ${mins} 分`;
+      } else {
+        document.getElementById('countdown-timer').innerText = "旅程啟航中！🎉";
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // 4. THEME SWITCHING
+    // ------------------------------------------------------------------
+
+    function setTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('ryo_theme', theme);
+
+      const html = document.documentElement;
+      const btnMc = document.getElementById('btn-theme-mc');
+      const btnSr = document.getElementById('btn-theme-sr');
+      const brandAvatar = document.getElementById('brand-avatar');
+
+      const monchhichiImg = 'image.png';
+      const sanrioImg = 'image_2.png';
+
+      if (theme === 'monchhichi') {
+        html.className = 'monchhichi-theme';
+        btnMc.style.backgroundColor = '#8B5E3C';
+        btnMc.style.color = '#FFFFFF';
+        btnSr.style.backgroundColor = 'transparent';
+        btnSr.style.color = 'inherit';
+        if (brandAvatar) brandAvatar.src = monchhichiImg;
+        document.querySelectorAll('.theme-mascot-bg, .theme-mascot-badge').forEach(el => el.src = monchhichiImg);
+      } else {
+        html.className = 'sanrio-theme';
+        btnSr.style.backgroundColor = '#FF85A2';
+        btnSr.style.color = '#FFFFFF';
+        btnMc.style.backgroundColor = 'transparent';
+        btnMc.style.color = 'inherit';
+        if (brandAvatar) brandAvatar.src = sanrioImg;
+        document.querySelectorAll('.theme-mascot-bg, .theme-mascot-badge').forEach(el => el.src = sanrioImg);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // 5. TAB NAVIGATION
+    // ------------------------------------------------------------------
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) {
+        target.classList.remove('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (tabId === 'map' && mapInstance) {
+        setTimeout(() => mapInstance.invalidateSize(), 200);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // 6. ITINERARY RENDERERS
+    // ------------------------------------------------------------------
+
+    function renderDaysEntrance() {
+      const container = document.getElementById('days-entrance-grid');
+      container.innerHTML = itineraryData.map(d => `
+        <div onclick="switchTab('itinerary'); selectDay(${d.day})" class="theme-card p-4 cursor-pointer hover:-translate-y-1 transition-transform relative overflow-hidden border-2">
+          <div class="flex justify-between items-center mb-2">
+            <span class="px-2.5 py-1 rounded-full text-xs font-black text-white" style="background-color: var(--primary);">D${d.day}</span>
+            <span class="text-xs font-bold opacity-70">${d.date.split(' ')[0]}</span>
+          </div>
+          <h4 class="font-bold text-sm mb-2 line-clamp-1">${d.title}</h4>
+          <div class="text-[11px] opacity-75 space-y-1">
+            ${d.highlights.slice(0, 3).map(h => `<div class="truncate">• ${h}</div>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDayNav() {
+      const nav = document.getElementById('day-nav-buttons');
+      nav.innerHTML = itineraryData.map(d => `
+        <button onclick="selectDay(${d.day})" id="btn-day-${d.day}" class="px-4 py-2 rounded-xl text-xs font-bold shrink-0 border transition-all ${activeDay === d.day ? 'text-white' : ''}" 
+          style="${activeDay === d.day ? 'background-color: var(--primary); border-color: var(--primary);' : 'background-color: var(--card-bg); border-color: var(--border-color);'}">
+          D${d.day} (${d.date.split(' ')[0]})
+        </button>
+      `).join('');
+    }
+
+    function selectDay(dayNum) {
+      activeDay = dayNum;
+      renderDayNav();
+      renderDayDetail(dayNum);
+    }
+
+    function renderDayDetail(dayNum) {
+      const data = itineraryData.find(d => d.day === dayNum);
+      const container = document.getElementById('active-day-detail');
+      const savedNote = dayNotes[`day_${dayNum}`] || '';
+
+      container.innerHTML = `
+        <div class="theme-card p-6 space-y-6">
+          <div class="flex flex-wrap justify-between items-center border-b pb-4 gap-2" style="border-color: var(--border-color);">
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-black text-white" style="background-color: var(--accent);">Day ${data.day}</span>
+              <h3 class="text-xl font-black mt-1">${data.title}</h3>
+              <p class="text-xs opacity-70 font-medium">${data.date}</p>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div>
+            <h4 class="font-bold text-sm mb-3 flex items-center gap-1.5" style="color: var(--primary);">
+              <i class="fa-solid fa-timeline"></i> 當日時間軸 Timeline
+            </h4>
+            <div class="space-y-3 pl-2 border-l-2" style="border-color: var(--border-color);">
+              ${data.timeline.map(t => `
+                <div class="relative pl-4">
+                  <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full border-2 bg-white" style="border-color: var(--accent);"></div>
+                  <div class="font-bold text-xs" style="color: var(--accent);">${t.time}</div>
+                  <div class="text-xs mt-0.5">${t.event}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Locations in Day -->
+          <div>
+            <h4 class="font-bold text-sm mb-3 flex items-center gap-1.5" style="color: var(--primary);">
+              <i class="fa-solid fa-map-pin"></i> 景點與座標連結
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              ${data.spots.map(s => `
+                <div class="p-3 rounded-xl border text-xs space-y-1" style="border-color: var(--border-color); background: var(--bg-color);">
+                  <div class="font-bold flex justify-between items-center">
+                    <span>${s.name}</span>
+                    <a href="https://maps.google.com/?q=${encodeURIComponent(s.name + ' ' + s.addr)}" target="_blank" class="text-[10px] px-2 py-0.5 rounded text-white font-bold" style="background-color: var(--primary);">
+                      導航
+                    </a>
+                  </div>
+                  <div class="opacity-70 text-[11px] truncate">${s.addr}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Notes & Reminders -->
+          <div class="p-4 rounded-xl text-xs border space-y-2" style="background-color: var(--badge-bg); border-color: var(--border-color);">
+            <div class="font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-exclamation" style="color: var(--accent);"></i> 當日重點提醒：
+            </div>
+            <p>${data.notes}</p>
+          </div>
+
+          <!-- Personal Notes Area -->
+          <div>
+            <h4 class="font-bold text-sm mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-pen-to-square"></i> 個人備註筆記 (自動儲存)
+            </h4>
+            <textarea oninput="saveDayNote(${dayNum}, this.value)" rows="3" placeholder="點擊此處輸入個人行程備註、想吃的店或代購清單..." class="w-full p-3 text-xs rounded-xl border bg-transparent focus:outline-none" style="border-color: var(--border-color);">${savedNote}</textarea>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveDayNote(dayNum, val) {
+      dayNotes[`day_${dayNum}`] = val;
+      localStorage.setItem('ryo_day_notes', JSON.stringify(dayNotes));
+    }
+
+    // ------------------------------------------------------------------
+    // 7. SPOTS DATABASE & FILTERING
+    // ------------------------------------------------------------------
+
+    function filterCategory(cat) {
+      currentCategoryFilter = cat;
+      document.querySelectorAll('#spot-category-filters button').forEach(btn => {
+        btn.style.backgroundColor = 'var(--card-bg)';
+        btn.style.color = 'inherit';
+      });
+      event.target.style.backgroundColor = 'var(--primary)';
+      event.target.style.color = 'white';
+      renderSpotsDB();
+    }
+
+    function renderSpotsDB() {
+      const search = document.getElementById('spot-search-input')?.value.toLowerCase() || '';
+      const container = document.getElementById('spots-grid-container');
+
+      const filtered = databaseSpots.filter(item => {
+        const matchesCat = currentCategoryFilter === 'all' || item.cat === currentCategoryFilter;
+        const matchesSearch = item.name.toLowerCase().includes(search) || 
+                              item.addr.toLowerCase().includes(search) || 
+                              item.note.toLowerCase().includes(search);
+        return matchesCat && matchesSearch;
+      });
+
+      container.innerHTML = filtered.map(s => {
+        let badge = '⛩️ 神社';
+        if (s.cat === 'food') badge = '🍜 美食';
+        if (s.cat === 'shop') badge = '🛍️ 購物';
+        if (s.cat === 'sight') badge = '📷 景點';
+
+        return `
+          <div class="theme-card p-4 flex flex-col justify-between space-y-2 text-xs border">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold" style="background-color: var(--badge-bg); color: var(--primary);">${badge}</span>
+                <span class="opacity-60 text-[10px]">${s.jp || ''}</span>
+              </div>
+              <h4 class="font-black text-sm mb-1">${s.name}</h4>
+              <p class="opacity-75 text-[11px] mb-2 line-clamp-2">${s.addr}</p>
+              <p class="p-2 rounded bg-black/5 text-[11px]">${s.note}</p>
+            </div>
+            <a href="https://maps.google.com/?q=${encodeURIComponent(s.name + ' ' + s.addr)}" target="_blank" class="w-full py-2 rounded-lg text-center text-white font-bold block" style="background-color: var(--primary);">
+              Google Maps 導航
+            </a>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ------------------------------------------------------------------
+    // 8. INTERACTIVE LEAFLET MAP
+    // ------------------------------------------------------------------
+
+    function initLeafletMap() {
+      // Default Center: Osaka
+      mapInstance = L.map('map').setView([34.6700, 135.5000], 11);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapInstance);
+
+      // Add all spots to map
+      databaseSpots.forEach(s => {
+        const marker = L.marker([s.lat, s.lng]).addTo(mapInstance);
+        marker.bindPopup(`
+          <div class="p-1">
+            <h4 style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">${s.name}</h4>
+            <p style="font-size: 11px; margin-bottom: 5px; opacity: 0.8;">${s.addr}</p>
+            <a href="https://maps.google.com/?q=${encodeURIComponent(s.name + ' ' + s.addr)}" target="_blank" style="background-color: #8B5E3C; color: white; padding: 3px 8px; border-radius: 6px; font-size: 10px; text-decoration: none; display: inline-block;">開啟導航</a>
+          </div>
+        `);
+        mapMarkers.push(marker);
+      });
+    }
+
+    function centerMap(region) {
+      if (!mapInstance) return;
+      if (region === 'all') mapInstance.setView([35.1000, 135.4000], 9);
+      if (region === 'osaka') mapInstance.setView([34.6700, 135.5000], 12);
+      if (region === 'kyoto') mapInstance.setView([35.0000, 135.7600], 12);
+      if (region === 'ine') mapInstance.setView([35.6200, 135.2400], 11);
+    }
+
+    // ------------------------------------------------------------------
+    // 9. CHECKLIST LOGIC
+    // ------------------------------------------------------------------
+
+    function renderChecklist() {
+      const container = document.getElementById('checklist-items-container');
+      
+      let checkedCount = 0;
+      container.innerHTML = userChecklist.map(item => {
+        const isChecked = checkedItems[item.id] || false;
+        if (isChecked) checkedCount++;
+
+        return `
+          <div class="flex items-center justify-between p-3 rounded-xl border bg-white/40" style="border-color: var(--border-color);">
+            <label class="flex items-center gap-3 cursor-pointer flex-1">
+              <input type="checkbox" onchange="toggleCheckItem('${item.id}')" ${isChecked ? 'checked' : ''} class="w-4 h-4 accent-amber-700 rounded">
+              <span class="${isChecked ? 'line-through opacity-50' : 'font-medium'}">${item.text}</span>
+            </label>
+            ${item.isCustom ? `<button onclick="removeChecklistItem('${item.id}')" class="text-red-400 text-xs px-2"><i class="fa-solid fa-trash"></i></button>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      const total = userChecklist.length;
+      const pct = total === 0 ? 0 : Math.round((checkedCount / total) * 100);
+      document.getElementById('checklist-percentage').innerText = `${pct}%`;
+      document.getElementById('checklist-progress-fill').style.width = `${pct}%`;
+    }
+
+    function toggleCheckItem(id) {
+      checkedItems[id] = !checkedItems[id];
+      localStorage.setItem('ryo_checked', JSON.stringify(checkedItems));
+      renderChecklist();
+    }
+
+    function addChecklistItem() {
+      const input = document.getElementById('new-checklist-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const newItem = {
+        id: 'custom_' + Date.now(),
+        text: text,
+        isCustom: true
+      };
+
+      userChecklist.push(newItem);
+      localStorage.setItem('ryo_checklist', JSON.stringify(userChecklist));
+      input.value = '';
+      renderChecklist();
+    }
+
+    function removeChecklistItem(id) {
+      userChecklist = userChecklist.filter(i => i.id !== id);
+      delete checkedItems[id];
+      localStorage.setItem('ryo_checklist', JSON.stringify(userChecklist));
+      localStorage.setItem('ryo_checked', JSON.stringify(checkedItems));
+      renderChecklist();
+    }
+
+    // ------------------------------------------------------------------
+    // 10. AUDIO CONTROL
+    // ------------------------------------------------------------------
+
+    function toggleAudio() {
+      const audio = document.getElementById('bg-audio');
+      const icon = document.getElementById('audio-icon');
+
+      if (audio.paused) {
+        audio.play().then(() => {
+          icon.className = 'fa-solid fa-pause text-xs';
+        }).catch(() => {
+          alert('請先點擊頁面任意處以授權音訊播放。');
+        });
+      } else {
+        audio.pause();
+        icon.className = 'fa-solid fa-play text-xs';
+      }
+    }
+
+    function setVolume(val) {
+      const audio = document.getElementById('bg-audio');
+      audio.volume = val;
+    }
+  </script>
+</body>
+</html>
